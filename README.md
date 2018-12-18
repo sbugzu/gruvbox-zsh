@@ -17,3 +17,6 @@ The ZSH theme based on [agnoster's Theme](https://gist.github.com/agnoster/37128
   ZSH_THEME="gruvbox"
   SOLARIZED_THEME="dark"
   ```
+
+# License
+  [MIT](https://en.wikipedia.org/wiki/MIT_License)
