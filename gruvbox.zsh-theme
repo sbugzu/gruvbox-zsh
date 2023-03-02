@@ -223,9 +223,9 @@ prompt_virtualenv() {
 prompt_status() {
   local -a symbols
 
-  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{1}%}\uf7d3" #
-  [[ $UID -eq 0 ]] && symbols+="%{%F{3}%}\uf7d0" #
-  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{6}%}\uf1663" #󱙣
+  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{1}%}\uf7d3" #
+  [[ $UID -eq 0 ]] && symbols+="%{%F{11}%}\ue77a" #
+  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{15}%}\ufb36" #󰘷
 
   [[ -n "$symbols" ]] && prompt_segment 166 7 "$symbols"
 }
