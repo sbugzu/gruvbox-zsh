@@ -53,7 +53,7 @@ esac
   # what font the user is viewing this source code in. Do not replace the
   # escape sequence with a single literal character.
   # Do not change this! Do not make it '\u2b80'; that is the old, wrong code point.
-  SEGMENT_SEPARATOR=$'\ue0b0'
+  SEGMENT_SEPARATOR=$'\ue0b0' # 
 }
 
 # Begin a segment
@@ -92,8 +92,8 @@ prompt_context() {
     # prompt_segment 237 7 "%(!.%{%F{3}%}.)%n@%m"
   # fi
   case "$OSTYPE" in
-    darwin*)  OS_LOGO="\ue29e" ;; 
-    linux*)   OS_LOGO="\ue712" ;;
+    darwin*)  OS_LOGO="\ue29e" ;; # 
+    linux*)   OS_LOGO="\ue712" ;; # 
   esac
   prompt_segment 237 7 $OS_LOGO
 }
@@ -211,7 +211,8 @@ prompt_dir() {
 prompt_virtualenv() {
   local virtualenv_path="$VIRTUAL_ENV"
   if [[ -n $virtualenv_path && -n $VIRTUAL_ENV_DISABLE_PROMPT ]]; then
-    prompt_segment 4 0 "(`basename $virtualenv_path`)"
+    #prompt_segment 4 0 "(`basename $virtualenv_path`)"
+    prompt_segment 2 0 "(`basename $virtualenv_path`)"
   fi
 }
 
@@ -222,9 +223,9 @@ prompt_virtualenv() {
 prompt_status() {
   local -a symbols
 
-  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{1}%}\uf7d3" #✘
-  [[ $UID -eq 0 ]] && symbols+="%{%F{3}%}\ufaf5" #⚡
-  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{6}%}\uf7d0" #⚙
+  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{1}%}\uf7d3" #
+  [[ $UID -eq 0 ]] && symbols+="%{%F{3}%}\uf7d0" #
+  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{6}%}\uf1663" #󱙣
 
   [[ -n "$symbols" ]] && prompt_segment 166 7 "$symbols"
 }
