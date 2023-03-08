@@ -99,6 +99,42 @@ prompt_context() {
 }
 
 # Git: branch/detached head, dirty status
+function +vi-git-st() {
+    local ahead behind
+    local -a gitstatus
+
+    # Exit early in case the worktree is on a detached HEAD
+    #git rev-parse ${hook_com[branch]}@{upstream} >/dev/null 2>&1 || return 0
+
+    local -a ahead_and_behind=(
+        $(git rev-list --left-right --count HEAD...${hook_com[branch]}@{upstream} 2>/dev/null)
+    )
+		local -a stat=("$(git status --porcelain)")
+    local -a untracked=(
+    	$(echo "$stat" | grep '^??' | wc -l)
+    )
+    local -a modified=(
+		$(echo "$stat" | grep '^.M' | wc -l)
+    )
+    local -a staged=(
+        $(echo "$stat" | grep '^[AM]' | wc -l)
+    )
+
+    ahead=${ahead_and_behind[1]}
+    behind=${ahead_and_behind[2]}
+
+    (( $modified )) && gitstatus+=( "%{\033[1m%}${modified}●" )
+    (( $staged )) && gitstatus+=( "%{\033[1m%}${staged}" )
+    (( $untracked )) && gitstatus+=( "%{\033[1m%}${untracked}" )
+    (( $ahead )) && gitstatus+=( '' )
+    (( $behind )) && gitstatus+=( '' )
+
+    if [[ gitstatus != '' ]] then
+	    hook_com[misc]+=' '
+    fi
+    hook_com[misc]+=${(j:  :)gitstatus}
+}
+
 prompt_git() {
   (( $+commands[git] )) || return
   if [[ "$(git config --get oh-my-zsh.hide-status 2>/dev/null)" = 1 ]]; then
@@ -135,10 +171,11 @@ prompt_git() {
     zstyle ':vcs_info:*' enable git
     zstyle ':vcs_info:*' get-revision true
     zstyle ':vcs_info:*' check-for-changes true
-    zstyle ':vcs_info:*' stagedstr '✚'
-    zstyle ':vcs_info:*' unstagedstr '●'
-    zstyle ':vcs_info:*' formats ' %u%c'
-    zstyle ':vcs_info:*' actionformats ' %u%c'
+    #zstyle ':vcs_info:*' stagedstr '✚'
+    #zstyle ':vcs_info:*' unstagedstr '●'
+    zstyle ':vcs_info:*' formats ' %m'
+    zstyle ':vcs_info:*' actionformats ' %m'
+    zstyle ':vcs_info:git*+set-message:*' hooks git-st
     vcs_info
     echo -n "${ref/refs\/heads\//$PL_BRANCH_CHAR }${vcs_info_msg_0_%% }${mode}"
   fi
