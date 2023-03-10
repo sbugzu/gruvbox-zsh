@@ -267,6 +267,62 @@ prompt_status() {
   [[ -n "$symbols" ]] && prompt_segment 166 7 "$symbols"
 }
 
+#setup defaults for vi-mode (colours here are selected to match gruvbox in vim)
+VI_MODE_PROMPT_SEG="I"
+VI_MODE_COLOUR=12
+
+#create zle hook to update on keymap change
+zle-keymap-select() {
+	#switch prompt indicator and colour
+	if [ "${KEYMAP}" = 'vicmd' ]; then
+		VI_MODE_PROMPT_SEG="N"
+		VI_MODE_COLOUR=7
+	else
+		VI_MODE_PROMPT_SEG="I"
+		VI_MODE_COLOUR=12
+	fi
+	zle reset-prompt
+	
+	#change cursor (this feels a bit like scope creep but I imagine most people
+	#want this feature and you can only have one of these hooks)
+	if [[ ${KEYMAP} == vicmd ]] ||
+     [[ $1 = 'block' ]]; then
+    echo -ne '\e[1 q'
+
+  elif [[ ${KEYMAP} == main ]] ||
+       [[ ${KEYMAP} == viins ]] ||
+       [[ ${KEYMAP} = '' ]] ||
+       [[ $1 = 'beam' ]]; then
+    echo -ne '\e[5 q'
+  fi
+
+}
+zle -N zle-keymap-select
+
+#fix bug where finishing in command mode will show next line as command mode
+zle-line-finish() {
+	VI_MODE_PROMPT_SEG="I"
+	VI_MODE_COLOUR=12
+}
+zle -N zle-line-finish
+
+#fix bug where C-c in command mode will show next line as command mode, by
+#catching C-c, changing mode on prompt and passing through error
+TRAPINT() {
+	VI_MODE_PROMPT_SEG="I"
+	VI_MODE_COLOUR=12
+	return $(( 128 + $1 ))
+}
+
+prompt_vi() {
+	#this checks if you are in vi mode and displays segment only if yes...
+	#although probably not very robust
+	if bindkey | grep '"\^\[" vi-cmd-mode' &> /dev/null ; then
+		#prompt_seperator 0 0
+		prompt_segment $VI_MODE_COLOUR 0 "%{\033[1m%}"$VI_MODE_PROMPT_SEG
+	fi
+}
+
 ## Main prompt
 build_prompt() {
   RETVAL=$?
@@ -277,6 +333,7 @@ build_prompt() {
   prompt_git
   prompt_bzr
   prompt_hg
+	prompt_vi
   prompt_end
 }
 
